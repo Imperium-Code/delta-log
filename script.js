@@ -6,9 +6,12 @@ const weightHistory = document.getElementById("weightHistory");
 button.addEventListener("click", function() {
     const weight = input.value;
 
+    const date = new Date();
+    const formattedDate = date.toLocaleDateString();
+
     const listItem = document.createElement("li");
 
-    listItem.textContent = `${weight} lbs`;
+    listItem.textContent = `${formattedDate} - ${weight} lbs`;
 
     weightHistory.appendChild(listItem);
 
