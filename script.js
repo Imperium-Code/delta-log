@@ -3,7 +3,7 @@ let firstEntryDate = null;
 
 const input = document.getElementById("weightInput");
 const button = document.getElementById("saveButton");
-const weightHistory = document.getElementById("weightHistory");
+const weeklyHistory = document.getElementById("weeklyHistory");
 const averageWeight = document.getElementById("averageWeight");
 const daysRecordedDisplay = document.getElementById("daysRecorded");
 const daysMissedDisplay = document.getElementById("daysMissed");
@@ -65,11 +65,24 @@ button.addEventListener("click", function() {
     averageWeight.textContent = `Week ${weekNumber} Average: ${weekAverage.toFixed(1)} lbs`;
 
     // Display new entry to the visible weight history.
-    const listItem = document.createElement("li");
+    let weekSection = document.getElementById(`week-${entry.week}`);
+    
+    // Create new week on display if first day of week.
+    if (weekSection === null) {
+        weekSection = document.createElement("div");
+        weekSection.id = `week-${entry.week}`;
 
-    listItem.textContent = `Week ${entry.week} - ${entry.displayDate} -  ${entry.weight} lbs`;
+        const weekHeading = document.createElement("h3");
+        weekHeading.textContent = `Week ${entry.week}`;
+        weekSection.appendChild(weekHeading);
 
-    weightHistory.appendChild(listItem);
+        weeklyHistory.appendChild(weekSection);
+    }
+
+    // List weights under current week.
+    const weightItem = document.createElement("li");
+    weightItem.textContent = `${entry.displayDate} - ${entry.weight} lbs`;
+    weekSection.appendChild(weightItem);
 
     input.value = "";
 });
