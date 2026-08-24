@@ -22,9 +22,6 @@ loadFirstEntryDate();
 const input = document.getElementById("weightInput");
 const button = document.getElementById("saveButton");
 const weeklyHistory = document.getElementById("weeklyHistory");
-const averageWeight = document.getElementById("averageWeight");
-const daysRecordedDisplay = document.getElementById("daysRecorded");
-const daysMissedDisplay = document.getElementById("daysMissed");
 
 function displayEntry(entry) {
     // Add the new entry to weekly history display.
@@ -40,6 +37,7 @@ function displayEntry(entry) {
         weekSection.appendChild(weekHeading);
 
         const weekStats = document.createElement("p");
+        weekStats.id = `week-stats-${entry.week}`;
         weekStats.textContent = "Days Recorded: 0 / 7";
         weekSection.appendChild(weekStats);
 
@@ -57,6 +55,14 @@ weightEntries.forEach(function (entry) {
     displayEntry(entry);
 });
 
+const weekNumbers = [...new Set(weightEntries.map(function (entry) {
+    return entry.week;
+}))];
+
+weekNumbers.forEach(function (weekNumber) {
+    updateWeeklyStats(weekNumber);
+});
+
 function updateWeeklyStats(weekNumber) {
     // Filter the history to entries belonging to the current 7 day period.
     const currentWeekEntries = weightEntries.filter(function (entry) {
@@ -66,9 +72,6 @@ function updateWeeklyStats(weekNumber) {
     const daysRecorded = currentWeekEntries.length;
     const daysMissed = 7 - daysRecorded;
 
-    daysRecordedDisplay.textContent = `Days Recorded: ${daysRecorded} / 7`;
-    daysMissedDisplay.textContent = `Days Missed: ${daysMissed}`;
-
     // Calculate weekly average using only days with recorded weights.
     const weekTotal = currentWeekEntries.reduce(function (total, entry) {
         return total + entry.weight;
@@ -76,7 +79,14 @@ function updateWeeklyStats(weekNumber) {
 
     const weekAverage = weekTotal / currentWeekEntries.length;
 
-    averageWeight.textContent = `Week ${weekNumber} Average: ${weekAverage.toFixed(1)} lbs`;
+    const weekStats = document.getElementById(`week-stats-${weekNumber}`);
+
+    if (weekStats !== null) {
+        weekStats.textContent = 
+            `Average: ${weekAverage.toFixed(1)} lbs | ` +
+            `Days Recorded: ${daysRecorded} / 7 | ` +
+            `Days Missed: ${daysMissed}`;
+    }
 }
 
 function calculateWeekNumber(date) {
@@ -125,8 +135,8 @@ function saveWeight() {
 
     saveWeightData();
 
-    updateWeeklyStats(weekNumber);
     displayEntry(entry);
+    updateWeeklyStats(weekNumber);
 
     input.value = "";
 }
