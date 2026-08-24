@@ -22,6 +22,37 @@ const averageWeight = document.getElementById("averageWeight");
 const daysRecordedDisplay = document.getElementById("daysRecorded");
 const daysMissedDisplay = document.getElementById("daysMissed");
 
+function displayEntry(entry) {
+    // Add the new entry to weekly history display.
+    let weekSection = document.getElementById(`week-${entry.week}`);
+
+    // Create a new week section when this is the first entry for that week.
+    if (weekSection === null) {
+        weekSection = document.createElement("div");
+        weekSection.id = `week-${entry.week}`;
+
+        const weekHeading = document.createElement("h3");
+        weekHeading.textContent = `Week ${entry.week}`;
+        weekSection.appendChild(weekHeading);
+
+        const weekStats = document.createElement("p");
+        weekStats.textContent = "Days Recorded: 0 / 7";
+        weekSection.appendChild(weekStats);
+
+        weeklyHistory.appendChild(weekSection);
+    }
+
+    // Add the weight entry to its corresponding week section.
+    const weightItem = document.createElement("li");
+    weightItem.textContent = `${entry.displayDate} - ${entry.weight} lbs`;
+    weekSection.appendChild(weightItem);
+}
+
+// Display every entry loaded from localStorage.
+weightEntries.forEach(function (entry) {
+    displayEntry(entry);
+});
+
 // Handles weight submission and updates the current week's information.
 button.addEventListener("click", function() {
     const weight = input.value;
@@ -83,30 +114,6 @@ button.addEventListener("click", function() {
     const weekAverage = weekTotal / currentWeekEntries.length;
 
     averageWeight.textContent = `Week ${weekNumber} Average: ${weekAverage.toFixed(1)} lbs`;
-
-    // Add the new entry to weekly history display.
-    let weekSection = document.getElementById(`week-${entry.week}`);
-    
-    // Create a new week section when this is the first entry for that week.
-    if (weekSection === null) {
-        weekSection = document.createElement("div");
-        weekSection.id = `week-${entry.week}`;
-
-        const weekHeading = document.createElement("h3");
-        weekHeading.textContent = `Week ${entry.week}`;
-        weekSection.appendChild(weekHeading);
-
-        const weekStats = document.createElement("p");
-        weekStats.textContent = "Days Recorded: 0 / 7";
-        weekSection.appendChild(weekStats);
-
-        weeklyHistory.appendChild(weekSection);
-    }
-
-    // Add the weight entry to its corresponding week section.
-    const weightItem = document.createElement("li");
-    weightItem.textContent = `${entry.displayDate} - ${entry.weight} lbs`;
-    weekSection.appendChild(weightItem);
 
     input.value = "";
 });
