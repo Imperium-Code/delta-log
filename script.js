@@ -1,19 +1,23 @@
 let weightEntries = [];
 let firstEntryDate = null;
 
-// Load saved weight entries when the application starts.
-const savedEntries = localStorage.getItem("weightEntries");
+function loadWeightData() {
+    const savedEntries = localStorage.getItem("weightEntries");
 
-if (savedEntries !== null) {
-    weightEntries = JSON.parse(savedEntries);
+    if (savedEntries !== null) {
+        weightEntries = JSON.parse(savedEntries);
+    }
 }
+loadWeightData();
 
-// Restore the date that established the user's first 7 day tracking cycle.
-const savedFirstEntryDate = localStorage.getItem("firstEntryDate");
+function loadFirstEntryDate() {
+    const savedFirstEntryDate = localStorage.getItem("firstEntryDate");
 
-if (savedFirstEntryDate !== null) {
-    firstEntryDate = new Date(savedFirstEntryDate);
+    if (savedFirstEntryDate !== null) {
+        firstEntryDate = new Date(savedFirstEntryDate);
+    }
 }
+loadFirstEntryDate();
 
 const input = document.getElementById("weightInput");
 const button = document.getElementById("saveButton");
@@ -53,48 +57,7 @@ weightEntries.forEach(function (entry) {
     displayEntry(entry);
 });
 
-// Handles weight submission and updates the current week's information.
-button.addEventListener("click", function() {
-    const weight = input.value;
-    const date = new Date();
-    const formattedDate = date.toLocaleDateString();
-
-    // Prevents multiple entries on the same day.
-    const alreadyLoggedToday = weightEntries.some(function (entry) {
-        return entry.displayDate === formattedDate
-    });
-
-    if (alreadyLoggedToday) {
-        alert("You already logged your weight today.");
-        return;
-    }
-
-    // First weigh in established beginning of the user's 7 day cycle.
-    if (firstEntryDate === null) {
-        firstEntryDate = date;
-
-        // Save the first entry date so the 7 day tracking cycle persists between sessions.
-        localStorage.setItem("firstEntryDate", firstEntryDate.toISOString());
-    }
-
-    const millisecondsPerDay = 1000 * 60 * 60 * 24;
-
-    const daysSinceFirstEntry = Math.floor((date - firstEntryDate) / millisecondsPerDay);
-
-    // Weeks are based on 7 calender days instead of number of entries.
-    const weekNumber = Math.floor(daysSinceFirstEntry / 7) + 1;
-
-    const entry = {
-        date: date,
-        displayDate: formattedDate,
-        weight: Number(weight),
-        week: weekNumber
-    };
-    weightEntries.push(entry);
-
-    // Save the updated weight history so entries persist between sessions.
-    localStorage.setItem("weightEntries", JSON.stringify(weightEntries));
-
+function updateWeeklyStats(weekNumber) {
     // Filter the history to entries belonging to the current 7 day period.
     const currentWeekEntries = weightEntries.filter(function (entry) {
         return entry.week === weekNumber;
@@ -106,7 +69,7 @@ button.addEventListener("click", function() {
     daysRecordedDisplay.textContent = `Days Recorded: ${daysRecorded} / 7`;
     daysMissedDisplay.textContent = `Days Missed: ${daysMissed}`;
 
-    // Calculate avg using only days where an entry was provided.
+    // Calculate weekly average using only days with recorded weights.
     const weekTotal = currentWeekEntries.reduce(function (total, entry) {
         return total + entry.weight;
     }, 0);
@@ -114,6 +77,58 @@ button.addEventListener("click", function() {
     const weekAverage = weekTotal / currentWeekEntries.length;
 
     averageWeight.textContent = `Week ${weekNumber} Average: ${weekAverage.toFixed(1)} lbs`;
+}
+
+function calculateWeekNumber(date) {
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+    const daysSinceFirstEntry = Math.floor((date - firstEntryDate) / millisecondsPerDay);
+
+    // Weeks are based on 7 calender days instead of number of entries.
+    return Math.floor(daysSinceFirstEntry / 7) + 1;
+}
+
+function saveWeightData() {
+    localStorage.setItem("weightEntries", JSON.stringify(weightEntries));
+}
+
+function saveWeight() {
+    const weight = input.value;
+    const date = new Date();
+    const formattedDate = date.toLocaleDateString();
+
+    // Prevents multiple entries on the same day.
+    const alreadyLoggedToday = weightEntries.some(function (entry) {
+        return entry.displayDate === formattedDate;
+    });
+
+    if (alreadyLoggedToday) {
+        alert("You already logged your weight today.");
+        return;
+    }
+
+    // Establish first tracking date.
+    if (firstEntryDate === null) {
+        firstEntryDate = date;
+        saveFirstEntryDate();
+    }
+
+    const weekNumber = calculateWeekNumber(date);
+
+    const entry = {
+        date: date,
+        displayDate: formattedDate,
+        weight: Number(weight),
+        week: weekNumber
+    };
+    weightEntries.push(entry);
+
+    saveWeightData();
+
+    updateWeeklyStats(weekNumber);
+    displayEntry(entry);
 
     input.value = "";
-});
+}
+
+button.addEventListener("click", saveWeight);
