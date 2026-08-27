@@ -1,5 +1,15 @@
 let weightEntries = [];
 let firstEntryDate = null;
+let nutritionEntries = [];
+
+function loadNutritionData() {
+    const savedNutrition = localStorage.getItem("nutritionEntries");
+
+    if (savedNutrition !== null) {
+        nutritionEntries = JSON.parse(savedNutrition);
+    }
+}
+loadNutritionData();
 
 function loadWeightData() {
     const savedEntries = localStorage.getItem("weightEntries");
@@ -22,6 +32,13 @@ loadFirstEntryDate();
 const input = document.getElementById("weightInput");
 const button = document.getElementById("saveButton");
 const weeklyHistory = document.getElementById("weeklyHistory");
+
+const calorieInput = document.getElementById("calorieInput");
+const proteinInput = document.getElementById("proteinInput");
+const foodSaveButton = document.getElementById("foodSaveButton");
+const dailyCalories = document.getElementById("dailyCalories");
+const dailyProtein = document.getElementById("dailyProtein");
+const foodHistory = document.getElementById("foodHistory");
 
 function displayEntry(entry) {
     // Add the new entry to weekly history display.
@@ -118,7 +135,7 @@ function updateWeeklyStats(weekNumber) {
             `Days Missed: ${daysMissed}`;
 
         if (weightChange !== null) {
-            statsText += ` | Weight Change: ${weightChange.toFixed(1)} lbs`;
+            statsText += ` | Weight Change: ${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} lbs`;
         }
 
         weekStats.textContent = statsText;
