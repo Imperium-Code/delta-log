@@ -15,3 +15,28 @@ function loadNutritionData() {
     }
 }
 loadNutritionData();
+
+function getTodayDate() {
+    return new Date().toLocaleDateString();
+}
+
+function calculateDailyNutrition() {
+    const today = getTodayDate();
+
+    const todayEntries = nutritionEntries.filter(function (entry) {
+        return entry.date === today;
+    });
+
+    const totalCalories = todayEntries.reduce(function (total, entry) {
+        return total + entry.calories;
+    }, 0);
+
+    const totalProtein = todayEntries.reduce(function (total, entry) {
+        return total + entry.protein;
+    }, 0);
+
+    return {
+        calories: totalCalories, 
+        protein: totalProtein
+    };
+}
