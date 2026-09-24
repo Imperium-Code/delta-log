@@ -40,3 +40,26 @@ function calculateDailyNutrition() {
         protein: totalProtein
     };
 }
+
+function saveFood() {
+    const calories = Number(calorieInput.value);
+    const protein = Number(proteinInput.value);
+    const date = getTodayDate();
+
+    const entry = {
+        date: date,
+        calories: calories,
+        protein: protein
+    };
+
+    nutritionEntries.push(entry)
+    
+    localStorage.setItem("nutritionEntries", JSON.stringify(nutritionEntries));
+
+    const dailyNutrtition = calculateDailyNutrition()
+
+    dailyCalories.textContent = `Calories: ${dailyNutrtition.calories}`;
+    dailyProtein.textContent = `Protein: ${dailyNutrtition.protein} g`;
+}
+
+foodSaveButton.addEventListener("click", saveFood);
