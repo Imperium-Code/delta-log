@@ -41,6 +41,24 @@ function calculateDailyNutrition() {
     };
 }
 
+function displayFoodEntry(entry) {
+    const foodItem = document.createElement("p");
+
+    foodItem.textContent = `${entry.calories} calories | ${entry.protein} g protein`;
+
+    foodHistory.appendChild(foodItem);
+}
+nutritionEntries.forEach(function (entry) {
+    if (entry.date == getTodayDate()) {
+        displayFoodEntry(entry);
+    }
+});
+
+const dailyNutritionOnLoad = calculateDailyNutrition();
+
+dailyCalories.textContent = `Calories: ${dailyNutritionOnLoad.calories}`;
+dailyProtein.textContent = `Protein: ${dailyNutritionOnLoad.protein}`;
+
 function saveFood() {
     const calories = Number(calorieInput.value);
     const protein = Number(proteinInput.value);
@@ -60,6 +78,11 @@ function saveFood() {
 
     dailyCalories.textContent = `Calories: ${dailyNutrtition.calories}`;
     dailyProtein.textContent = `Protein: ${dailyNutrtition.protein} g`;
+
+    displayFoodEntry(entry);
+
+    calorieInput.value = "";
+    proteinInput.value = "";
 }
 
 foodSaveButton.addEventListener("click", saveFood);
