@@ -60,8 +60,31 @@ dailyCalories.textContent = `Calories: ${dailyNutritionOnLoad.calories}`;
 dailyProtein.textContent = `Protein: ${dailyNutritionOnLoad.protein}`;
 
 function saveFood() {
-    const calories = Number(calorieInput.value);
-    const protein = Number(proteinInput.value);
+    const calorieValue = calorieInput.value.trim();
+    const proteinValue = proteinInput.value.trim();
+
+    // Make sure neither field is empty.
+    if (calorieValue === "" || proteinValue === "") {
+        alert("Please enter both calories and protein.");
+        return;
+    }
+
+    const calories = Number(calorieValue);
+    const protein = Number(proteinValue);
+
+    // Reject negative or non-finite numbers.
+    if (!Number.isFinite(calories) || !Number.isFinite(protein) ||
+        calories < 0 || protein < 0) {
+        alert("Please enter valid, non-negative numbers.");
+        return;
+    }
+
+    // Prevent unrealistic entries.
+    if (calories > 10000 || protein > 1000) {
+        alert("Please check your calorie and protein values.");
+        return;
+    }
+
     const date = getTodayDate();
 
     const entry = {
