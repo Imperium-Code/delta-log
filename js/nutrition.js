@@ -1,3 +1,5 @@
+// Food entries, Calculations, and Nutrition validation
+
 let nutritionEntries = [];
 
 const calorieInput = document.getElementById("calorieInput");
@@ -13,6 +15,8 @@ const calorieProgressText = document.getElementById("calorieProgressText");
 const proteinProgressText = document.getElementById("proteinProgressText");
 const calorieProgressBar = document.getElementById("calorieProgressBar");
 const proteinProgressBar = document.getElementById("proteinProgressBar");
+const remainingCaloriesText = document.getElementById("remainingCalories");
+const remainingProteinText = document.getElementById("remainingProtein");
 
 function loadNutritionData() {
     const savedNutrition = localStorage.getItem("nutritionEntries");
@@ -76,9 +80,14 @@ function calculateGoalProgress() {
     const calorieProgress = (dailyNutrition.calories / calorieGoal) * 100;
     const proteinProgress = (dailyNutrition.protein / proteinGoal) * 100;
 
+    const remainingCalories = calorieGoal - dailyNutrition.calories;
+    const remainingProtein = proteinGoal - dailyNutrition.protein;
+
     return {
         calorieProgress: calorieProgress,
-        proteinProgress: proteinProgress
+        proteinProgress: proteinProgress,
+        remainingCalories: remainingCalories,
+        remainingProtein: remainingProtein
     };
 }
 
@@ -92,6 +101,10 @@ function updateGoalProgress() {
 
         calorieProgressBar.value = 0;
         proteinProgressBar.value = 0;
+
+        remainingCaloriesText.textContent = "Calories Remaining: --";
+        remainingProteinText.textContent = "Protein Remaining: --";
+
         return;
     }
 
@@ -105,6 +118,13 @@ function updateGoalProgress() {
     // Limit the visual bars to 100%.
     calorieProgressBar.value = Math.min(progress.calorieProgress, 100);
     proteinProgressBar.value = Math.min(progress.proteinProgress, 100);
+
+    // Display remaining calories and protein.
+    remainingCaloriesText.textContent =
+        `Calories Remaining: ${progress.remainingCalories.toFixed(1)}`;
+
+    remainingProteinText.textContent =
+        `Protein Remaining: ${progress.remainingProtein.toFixed(1)} g`;
 }
 
 function displayFoodEntry(entry) {
@@ -201,6 +221,9 @@ function saveGoals() {
     updateGoalProgress();
 }
 
-saveGoalsButton.addEventListener("click", saveGoals);
-foodSaveButton.addEventListener("click", saveFood);
-updateGoalProgress();
+export function initializeNutrition() {
+    foodSaveButton.addEventListener("click", saveFood);
+    saveGoalsButton.addEventListener("click", saveGoals);
+
+    updateGoalProgress();
+}

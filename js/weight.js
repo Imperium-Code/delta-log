@@ -1,3 +1,7 @@
+// Weight logging, Weekly averages, and Weight history
+
+import { saveData, loadData } from "./storage.js";
+
 let weightEntries = [];
 let firstEntryDate = null;
 
@@ -6,10 +10,10 @@ const button = document.getElementById("saveButton");
 const weeklyHistory = document.getElementById("weeklyHistory");
 
 function loadWeightData() {
-    const savedEntries = localStorage.getItem("weightEntries");
+    const savedEntries = loadData("weightEntries");
 
     if (savedEntries !== null) {
-        weightEntries = JSON.parse(savedEntries);
+        weightEntries = savedEntries;
     }
 }
 loadWeightData();
@@ -18,7 +22,16 @@ function loadFirstEntryDate() {
     const savedFirstEntryDate = localStorage.getItem("firstEntryDate");
 
     if (savedFirstEntryDate !== null) {
-        firstEntryDate = new Date(savedFirstEntryDate);
+        let dateString;
+
+        try {
+            dateString = JSON.parse(savedFirstEntryDate);
+        } catch {
+            // Support dates saved before the ES module refactor.
+            dateString = savedFirstEntryDate;
+        }
+
+        firstEntryDate = new Date(dateString);
     }
 }
 loadFirstEntryDate();
@@ -135,14 +148,11 @@ function calculateWeekNumber(date) {
 }
 
 function saveWeightData() {
-    localStorage.setItem("weightEntries", JSON.stringify(weightEntries));
+    saveData("weightEntries", weightEntries);
 }
 
 function saveFirstEntryDate() {
-    localStorage.setItem(
-        "firstEntryDate",
-        firstEntryDate.toISOString()
-    );
+    saveData("firstEntryDate", firstEntryDate.toISOString());
 }
 
 function saveWeight() {
@@ -184,4 +194,6 @@ function saveWeight() {
     input.value = "";
 }
 
-button.addEventListener("click", saveWeight);
+export function initializeWeight() {
+    button.addEventListener("click", saveWeight);
+}
